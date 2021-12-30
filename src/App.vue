@@ -1,33 +1,70 @@
 <template>
-  <div class="container">
+  <div :class="+temp < 0 ? 'container-cold' : 'container-warm'">
     <main>
       <div class="search-box">
-        <input type="text" class="search-bar" placeholder="Search...." />
+        <input
+          type="text"
+          class="search-bar"
+          placeholder="Search...."
+          v-model="city"
+        />
+        <button class="btn" @click="searchCity">Search</button>
       </div>
-
-      <div class="weather-wrap">
-        <div class="location-box">
-          <div class="location">Almaty,KZ</div>
-          <div class="date">Monday</div>
+      <div v-if="nameCity">
+        <div class="weather-wrap">
+          <div class="location-box">
+            <div class="location">{{ nameCity }},{{ sysCity }}</div>
+            <div class="date">{{ dateformat }}</div>
+          </div>
         </div>
-      </div>
 
-      <div class="weather-box">
-        <div class="temp">9°c</div>
-        <div class="weather">Rain</div>
+        <div class="weather-box">
+          <div class="temp">{{ temp }}°c</div>
+          <div class="weather">{{ weather }}</div>
+        </div>
       </div>
     </main>
   </div>
 </template>
 
 <script>
+import { fetchApiWeather } from "./api";
+import moment from "moment";
+
 export default {
   name: "App",
   components: {},
   data() {
     return {
-      apiKey: "94c4fe95f0b325f23bbee21adc86741b",
+      weatherData: {},
+      city: "",
+      nameCity: "",
+      sysCity: "",
+      temp: "",
+      weather: "",
+      date: new Date(),
     };
+  },
+  created() {},
+  computed: {
+    dateformat() {
+      return moment(this.data).format("MMMM Do YYYY,h:mm:ss a");
+    },
+  },
+  methods: {
+    async searchCity() {
+      if (this.weatherData) {
+        this.weatherData = await fetchApiWeather(this.city);
+        this.temp = this.weatherData.main.temp;
+        console.log(this.weatherData);
+        this.weather = this.weatherData.weather[0].main;
+        this.nameCity = this.weatherData.name;
+        this.sysCity = this.weatherData.sys.country;
+        this.city = "";
+      } else {
+        this.weatherData = "";
+      }
+    },
   },
 };
 </script>
@@ -48,8 +85,14 @@ main {
     rgba(0, 0, 0, 0.75)
   );
 }
-.container {
+.container-cold {
   background-image: url("./assets/cold-bg.jpg");
+  background-size: cover;
+  background-position: bottom;
+  transition: 0.4s;
+}
+.container-warm {
+  background-image: url("./assets/warm-bg.jpg");
   background-size: cover;
   background-position: bottom;
   transition: 0.4s;
@@ -57,6 +100,20 @@ main {
 .search-box {
   width: 100%;
   padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.btn {
+  width: 100px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+}
+.btn:hover {
+  text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+  box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+  background-color: rgba(255, 255, 255, 0.25);
 }
 .search-bar {
   width: 100%;
@@ -65,6 +122,7 @@ main {
   border-radius: 30px;
   padding: 20px;
   font-size: 20px;
+  margin-right: 20px;
 }
 .weather-wrap {
 }
