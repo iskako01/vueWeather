@@ -45,7 +45,16 @@ export default {
       date: new Date(),
     };
   },
-  created() {},
+  mounted() {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.searchCity();
+      }
+    });
+  },
+  beforeUnmount() {
+    window.removeEventListener("keydown", this.searchCity());
+  },
   computed: {
     dateformat() {
       return moment(this.data).format("MMMM Do YYYY,h:mm:ss a");
@@ -53,6 +62,7 @@ export default {
   },
   methods: {
     async searchCity() {
+      console.log("enter");
       if (this.weatherData) {
         this.weatherData = await fetchApiWeather(this.city);
         this.temp = this.weatherData.main.temp;
@@ -70,6 +80,13 @@ export default {
 </script>
 
 <style>
+#app {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.25),
+    rgba(0, 0, 0, 0.75)
+  );
+}
 * {
   margin: 0;
   padding: 0;
@@ -86,15 +103,19 @@ main {
   );
 }
 .container-cold {
+  margin: 0 auto;
+  width: 1024px;
   background-image: url("./assets/cold-bg.jpg");
   background-size: cover;
   background-position: bottom;
   transition: 0.4s;
 }
 .container-warm {
+  margin: 0 auto;
+  width: 1024px;
   background-image: url("./assets/warm-bg.jpg");
   background-size: cover;
-  background-position: bottom;
+  /* background-position: bottom; */
   transition: 0.4s;
 }
 .search-box {
